@@ -5,6 +5,12 @@
 // Refer to Puppeteer docs here: https://pptr.dev/guides/what-is-puppeteer
 import {getAIResponse} from "@/app/utils/getAIClient"
 import { scrapeUrl, urlRegex } from "@/app/utils/scraper";
+interface ChatMessage{
+
+  role: "system" | "user" | "assistant"
+  content: string
+
+}
 export async function POST(req: Request) {
   try {
     const body = await req.json(); //parse the request body
@@ -37,11 +43,18 @@ export async function POST(req: Request) {
     ${scrapedContent}
     </content>
     `
+
+    const llmMessages: ChatMessage[] = [
+
+      ...message,
+      {role: "user",
+        content: userPrompt
+      }
+    ]
     
 
-    
-
-    const response = await getAIResponse(userPrompt);
+  
+    const response = await getAIResponse(llmMessages);
     //console.log(response);
     //pass back to the frontend
     return new Response(JSON.stringify({ response }), {

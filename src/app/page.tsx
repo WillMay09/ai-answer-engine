@@ -3,18 +3,20 @@
 import { AppInitialProps } from "next/app";
 import { useState } from "react";
 
-type Message = {
-  author: "user" | "ai";
-  content: string;
-};
+interface ChatMessage{
+
+  role: "system" | "user" | "assistant";
+  content: string
+
+}
 export default function Home() {
   //intially no message
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [resetTime, setResetTime] = useState<number | null>(null);
   const [message, setMessage] = useState("");
 
-  const [messageHistory, setMessageHistory] = useState<Message[]>([
-    { author: "ai", content: "How can I help you today?" },
+  const [messageHistory, setMessageHistory] = useState<ChatMessage[]>([
+    { role: "assistant", content: "How can I help you today?" },
   ]);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +26,7 @@ export default function Home() {
     if (!message.trim()) return;
 
     //create message object, as const treats user as a literal type
-    const userMessage = { author: "user" as const, content: message };
+    const userMessage = { role: "user" as const, content: message };
 
     //update messageHistory, creates a new array, spreads previous messages into array and
     //adds userMessage at the end
@@ -69,7 +71,7 @@ export default function Home() {
         console.log(llmResponseText.response);
 
         const llmResponse = {
-          author: "ai" as const,
+          role: "assistant" as const,
           content: llmResponseText.response,
         };
         setMessageHistory(prev => [...prev, llmResponse]);
@@ -100,10 +102,10 @@ export default function Home() {
             <div
               key={index}
               // starts the messages on the left if from the ai and right if from the user
-              className={`flex gap-4 mb-4 ${msg.author === "ai" ? "justify-start" : "justify-end flex-row-reverse"}`}
+              className={`flex gap-4 mb-4 ${msg.role === "assistant" ? "justify-start" : "justify-end flex-row-reverse"}`}
             >
               <div
-                className={`px-4 py-2 rounded-2xl max-w-[80%] ${msg.author === "ai" ? "bg-lightCyan border border-lightCyan text-gray-100" : "bg-userBlue text-black ml-auto"}`}
+                className={`px-4 py-2 rounded-2xl max-w-[80%] ${msg.role === "assistant" ? "bg-lightCyan border border-lightCyan text-gray-100" : "bg-userBlue text-black ml-auto"}`}
               >
                 {msg.content}
               </div>
