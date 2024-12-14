@@ -20,16 +20,28 @@ export async function POST(req: Request) {
       });
     
     }
+    let scrapedContent = "";
     if(url){
 
       console.log("url found:",url)
-      const scrapedContent = scrapeUrl(url);
+      const scraperResponse = await scrapeUrl(url);
+      scrapedContent = scraperResponse.content
+
       
     }
+    const userQuery = message.replace(url ? url[0]: '','').trim();
+
+    const userPrompt = `Answer my question: "${userQuery}"
+    <content>
+
+    ${scrapedContent}
+    </content>
+    `
+    
 
     
 
-    const response = await getAIResponse(message);
+    const response = await getAIResponse(userPrompt);
     //console.log(response);
     //pass back to the frontend
     return new Response(JSON.stringify({ response }), {
